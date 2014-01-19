@@ -2,19 +2,18 @@
 require 'csv'
 
 module Parser
-  def parser(file)
-    deck = Array.new
-    # modified. It was looking for " ". Modified to ""
+  def self.parser(file)
+    cards = Array.new
     raw_data = File.read(file).split("\n").delete_if{|word| word == ""}
 
     start = 0
     while start < raw_data.length
       definition = raw_data[start]
       answer = raw_data[start+1]
-      deck.push(Card.new({definition: definition, answer: answer}))
+      cards.push(Card.new({definition: definition, answer: answer}))
       start += 2
     end
-    deck
+    cards
   end
 end
 
@@ -24,24 +23,29 @@ class Card
     @definition = data[:definition]
     @answer = data[:answer]
   end
+
+  def correct_answer?(input)
+    answer.downcase == input.downcase
+  end
 end
 
 class Deck
-  include Parser
-  attr_reader :current_random_card, :deck
-  def initialize(file)
-    @file = file
-    @deck =  parser(file)
-    parser(file)
-    @current_random_card = nil
+  attr_reader :current_random_card, :cards
+  def initialize(cards = [])
+    @cards = cards
   end
 
   def retrieve_random_card
-   @current_random_card = @deck.sample
+   @cards.shuffle!.pop
   end
 
-  def correct_answer?(string) #name pending
-    @current_random_card.answer.downcase == string.downcase
+  def has_cards? 
+    @cards.any?
+  end
+
+  def self.from_file(file)
+    cards = Parser::parser(file)
+    self.new(cards)
   end
 end
 
@@ -65,8 +69,6 @@ class User
   end
 end
 
-# deck = Deck.new('flashcard_samples.txt')
-# p deck.deck
 class FailedDeck < Deck
   attr_reader :deck
   def initialize
@@ -79,10 +81,4 @@ class FailedDeck < Deck
       @deck << [card, count]
     end
   end
-
-  # def add_card_logic(card, missed_count)
-  #   if missed_count >= 4
-  #     add_card(card)
-  #   end
-  # end
 end

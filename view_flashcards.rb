@@ -1,27 +1,17 @@
 class CardView
-  attr_reader :card
-
-  def initialize(card)
-    @card = card
+  def display_definition(card)
+    puts definition(card)
   end
 
-  def display_definition
-    puts definition
-  end
-
-  def definition
-    <<-STRING
+  def definition(card)
+<<-STRING
 
 
-#{@card.definition}
+#{card.definition}
 
 
 Answer:
 STRING
-  end
-
-  def set_card(card)
-    @card = card
   end
 end
 
@@ -40,18 +30,14 @@ class UserView
 end
 
 class FailedDeckView
-  def initialize failed_deck
-    @deck = failed_deck
+  def display_failed(failed_deck)
+    puts create_list(failed_deck)
   end
 
-  def display_failed
-    puts create_list
-  end
-
-  def create_list
-    str = ""
-    @deck.deck.each do |card|
-      str << "Questio:\n" +
+  def create_list(failed_deck)
+    str = "\nFrequency of wrong answer in failed deck\n"
+    failed_deck.deck.each do |card|
+      str << "Question:\n" +
             "#{card[0].definition}\n" +
             "Failed #{card[1]} times.\n\n"
       end
